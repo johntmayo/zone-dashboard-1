@@ -7,7 +7,7 @@
   <link rel="icon" type="image/x-icon" href="resources/images/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Alegreya:wght@800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
   <script src="https://apis.google.com/js/api.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -21,18 +21,6 @@
 </head>
 
 <body>
-  <!-- Top Header Bar -->
-  <div class="top-header">
-    <div class="header-left" id="headerLeft">Zone XX • Altagether Dashboard</div>
-    <div class="header-right">
-      <!-- Alert scrolling area inside header -->
-      <div class="header-alert-container hidden" id="alertBar">
-        <div class="header-alert-content" id="alertBarContent"></div>
-      </div>
-      <span class="live-indicator">Live updates</span>
-    </div>
-    </div>
-
     <!-- Persistent Filter Bar -->
     <div class="filter-bar hidden" id="filterBar">
       <div class="filter-bar-content" id="filterBarContent">
@@ -85,6 +73,10 @@
     <div class="app-container">
     <!-- Left Navigation Bar -->
     <nav class="left-nav">
+      <div class="nav-header">
+        <div class="nav-header-zone" id="navHeaderZone">Zone XX</div>
+        <div class="nav-header-org">Altagether</div>
+      </div>
       <div class="nav-section">
         <button class="nav-item active" data-view="home" id="navHome">Home</button>
         <button class="nav-item" data-view="map" id="navMap">Map</button>
@@ -94,6 +86,9 @@
         <button class="nav-item" data-view="help" id="navHelp">Help</button>
       </div>
       <div class="nav-section nav-section-bottom">
+        <div class="nav-logo">
+          <img src="resources/images/logo_white_transparent.png" alt="Altagether Logo">
+        </div>
         <div class="sheet-link-section">
           <label class="sheet-link-label" id="sheetLinkLabel">Link your zone spreadsheet</label>
           <input id="sheetUrlInput" class="nav-sheet-input" placeholder="Paste Google Sheet URL" />
@@ -225,6 +220,13 @@
             </div>
           </div>
           
+          <!-- Alert Card (dynamically shown when alert is active) -->
+          <div class="alert-card-urgent hidden" id="alertCard">
+            <h3>Important Update</h3>
+            <div class="alert-content" id="alertCardContent"></div>
+            <button class="btn-acknowledge" id="alertAcknowledgeBtn">Acknowledge</button>
+          </div>
+
           <!-- Panel B: From Altagether -->
           <div class="home-panel altagether-panel">
             <div class="home-panel-header">
@@ -301,7 +303,7 @@
     <!-- Addresses & People View (Table) -->
     <div class="content-view hidden" id="peopleView">
       <div class="people-view-header">
-        <h2 style="margin: 0; color: var(--primary-dark); font-size: 1.8rem; letter-spacing: 0.5px; font-family: 'Alegreya', serif;">Addresses & People</h2>
+        <h2 style="margin: 0; color: var(--primary-dark); font-size: 1.8rem; letter-spacing: 0.5px; font-family: 'Chivo', sans-serif;">Addresses & People</h2>
         <div class="people-view-actions">
           <button class="btn-print-export" id="btnPrintAddresses">🖨️ Print</button>
           <button class="btn-print-export" id="btnExportAddresses">📥 Export CSV</button>
@@ -312,7 +314,7 @@
 
     <!-- Tools View -->
     <div class="content-view hidden" id="toolsView">
-      <h2 style="margin-top: 0; color: var(--primary-dark); font-size: 2rem; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(40, 54, 24, 0.1);">Tools</h2>
+      <h2 class="page-title">Tools</h2>
       
       <div class="tools-grid">
       <!-- Contact List Creator Module removed - functionality integrated into Addresses & People view -->
@@ -431,7 +433,7 @@
 
     <!-- Actions View -->
     <div class="content-view hidden" id="meetupsView">
-      <h2 style="margin-top: 0; color: var(--primary-dark); font-size: 2rem; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(40, 54, 24, 0.1);">Actions</h2>
+      <h2 class="page-title">Actions</h2>
       <div id="actionsPageContent" style="margin-top: 24px;">
         <div class="loading">Loading actions...</div>
       </div>
@@ -439,27 +441,27 @@
 
     <!-- Help View -->
     <div class="content-view hidden" id="helpView">
-      <h2 style="margin-top: 0; color: var(--primary-dark); font-size: 2rem; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(40, 54, 24, 0.1);">Help</h2>
+      <h2 class="page-title">Help</h2>
       
-      <div style="display: flex; flex-direction: column; gap: 24px; margin-top: 24px; max-width: 800px;">
+      <div class="help-container">
         <!-- Documentation Widget -->
-        <div style="padding: 24px; background: linear-gradient(135deg, rgba(254, 250, 224, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%); border-radius: 12px; border: 2px solid var(--primary); box-shadow: 0 4px 12px rgba(40, 54, 24, 0.1);">
-          <h3 style="margin-top: 0; margin-bottom: 12px; color: var(--primary-dark); font-size: 1.3rem;">Zone Dashboard Documentation</h3>
-          <p style="margin-bottom: 20px; color: var(--text); line-height: 1.6;">View the complete help documentation with detailed instructions and guides.</p>
-          <a href="help.html" target="_blank" rel="noopener noreferrer" class="help-link-btn" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--light-cream); text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 8px rgba(188, 108, 37, 0.3), 0 2px 4px rgba(188, 108, 37, 0.2); letter-spacing: 0.5px; cursor: pointer;">
+        <div class="help-card">
+          <h3>Zone Dashboard Documentation</h3>
+          <p>View the complete help documentation with detailed instructions and guides.</p>
+          <a href="help.html" target="_blank" rel="noopener noreferrer" class="help-link-btn">
             📖 Open Help Documentation
           </a>
         </div>
 
         <!-- Discord Widget -->
-        <div style="padding: 24px; background: linear-gradient(135deg, rgba(254, 250, 224, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%); border-radius: 12px; border: 2px solid var(--primary); box-shadow: 0 4px 12px rgba(40, 54, 24, 0.1);">
-          <h3 style="margin-top: 0; margin-bottom: 12px; color: var(--primary-dark); font-size: 1.3rem;">Discord</h3>
-          <p style="margin-bottom: 20px; color: var(--text); line-height: 1.6;">Join our Discord community for support, updates, and discussions.</p>
-          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <button id="discordQuickStartBtn" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, rgba(88, 101, 242, 0.8) 0%, rgba(88, 101, 242, 1) 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 8px rgba(88, 101, 242, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 12px rgba(88, 101, 242, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 8px rgba(88, 101, 242, 0.3)'">
+        <div class="help-card">
+          <h3>Discord</h3>
+          <p>Join our Discord community for support, updates, and discussions.</p>
+          <div class="help-card-buttons">
+            <button id="discordQuickStartBtn" class="help-link-btn">
               🚀 Discord Quick Start
             </button>
-            <a href="discord-help.html" target="_blank" rel="noopener noreferrer" class="help-link-btn" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--light-cream); text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 8px rgba(188, 108, 37, 0.3), 0 2px 4px rgba(188, 108, 37, 0.2); letter-spacing: 0.5px; cursor: pointer;">
+            <a href="discord-help.html" target="_blank" rel="noopener noreferrer" class="help-link-btn">
               📚 Discord Tutorial
             </a>
           </div>
@@ -497,12 +499,12 @@
         </div>
 
         <!-- Altagether Calendar Widget -->
-        <div style="padding: 24px; background: linear-gradient(135deg, rgba(254, 250, 224, 0.6) 0%, rgba(255, 255, 255, 0.6) 100%); border-radius: 12px; border: 2px solid var(--primary); box-shadow: 0 4px 12px rgba(40, 54, 24, 0.1);">
-          <h3 style="margin-top: 0; margin-bottom: 12px; color: var(--primary-dark); font-size: 1.3rem;">Altagether Calendar</h3>
-          <p style="margin-bottom: 20px; color: var(--text); line-height: 1.6;">View upcoming events, meetings, and important dates for the Altagether community.</p>
-          <div style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: var(--light-cream); border-radius: 8px; font-weight: 600; font-size: 1rem; opacity: 0.6; cursor: not-allowed;">
+        <div class="help-card">
+          <h3>Altagether Calendar</h3>
+          <p>View upcoming events, meetings, and important dates for the Altagether community.</p>
+          <span class="help-link-btn" style="opacity: 0.5; cursor: not-allowed;">
             📅 View Calendar (Coming Soon)
-          </div>
+          </span>
         </div>
       </div>
     </div>
@@ -883,8 +885,8 @@
 
     // Update header title based on zone name and spreadsheet link status
     function updateHeaderTitle() {
-      const headerLeft = document.getElementById('headerLeft');
-      if (!headerLeft) return;
+      const navHeaderZone = document.getElementById('navHeaderZone');
+      if (!navHeaderZone) return;
       
       if (currentSheetUrl && currentZoneName) {
         // Strip "Zone" from the beginning if it's already there
@@ -892,9 +894,10 @@
         if (zoneName.toLowerCase().startsWith('zone ')) {
           zoneName = zoneName.substring(5).trim();
         }
-        headerLeft.textContent = `Zone ${zoneName} • Altagether Dashboard`;
+        // Use Title Case for zone name
+        navHeaderZone.textContent = `Zone ${zoneName}`;
       } else {
-        headerLeft.textContent = 'Altagether Dashboard';
+        navHeaderZone.textContent = 'Zone XX';
       }
     }
 
@@ -2262,7 +2265,7 @@
         const filterBarOffset = filterBarTop + filterBarHeight + 2;
         
         // Apply offset to content views
-        // Both filter bar and app-container start at same viewport position (56px or 96px)
+        // Both filter bar and app-container start at top of viewport
         // Filter bar is fixed, content views are absolute within app-container
         // Since they start at the same point, we just need filter bar height
         const offset = filterBarRect.height + 2; // +2px buffer to prevent any overlap
@@ -5700,10 +5703,11 @@
           // Default center (Altadena, CA - adjust as needed)
           zoneMap = L.map('zoneMap').setView([34.19, -118.15], 12);
           
-          // Add OpenStreetMap tiles (default)
-          currentTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
+          // Add CartoDB Positron tiles (grayscale for Zine aesthetic)
+          currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors, © CARTO',
+            maxZoom: 19,
+            subdomains: 'abcd'
           }).addTo(zoneMap);
           
           // Create satellite toggle control
@@ -5728,10 +5732,11 @@
                 
                 // Toggle between street and satellite
                 if (isSatelliteMode) {
-                  // Switch to street map
-                  currentTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
-                    maxZoom: 19
+                  // Switch to street map (CartoDB Positron - grayscale)
+                  currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '© OpenStreetMap contributors, © CARTO',
+                    maxZoom: 19,
+                    subdomains: 'abcd'
                   }).addTo(zoneMap);
                   button.innerHTML = '🛰️';
                   button.title = 'Switch to satellite view';
@@ -5821,10 +5826,11 @@
           // Default center (Altadena, CA - adjust as needed)
           homeMap = L.map('homeMap').setView([34.19, -118.15], 12);
           
-          // Add OpenStreetMap tiles (default)
-          homeTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
+          // Add CartoDB Positron tiles (grayscale for Zine aesthetic)
+          homeTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors, © CARTO',
+            maxZoom: 19,
+            subdomains: 'abcd'
           }).addTo(homeMap);
           
           // Create satellite toggle control for home map
@@ -5849,10 +5855,11 @@
                 
                 // Toggle between street and satellite
                 if (isHomeSatelliteMode) {
-                  // Switch to street map
-                  homeTileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
-                    maxZoom: 19
+                  // Switch to street map (CartoDB Positron - grayscale)
+                  homeTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    attribution: '© OpenStreetMap contributors, © CARTO',
+                    maxZoom: 19,
+                    subdomains: 'abcd'
                   }).addTo(homeMap);
                   button.innerHTML = '🛰️';
                   button.title = 'Switch to satellite view';
@@ -7968,7 +7975,7 @@
       captains.forEach((captain, index) => {
         html += `
           <div style="padding: 16px; background: rgba(96, 108, 56, 0.05); border-radius: 8px; border: 2px solid rgba(96, 108, 56, 0.2);">
-            <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary-dark); margin-bottom: 12px; font-family: 'Alegreya', serif;">
+            <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary-dark); margin-bottom: 12px; font-family: 'Chivo', sans-serif;">
               ${escapeHtml(captain.name)}
             </div>
             <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
@@ -8666,14 +8673,29 @@
         
         const feed = await response.json();
         
-        // Display alert in header if there's an alert
-        const alertBar = document.getElementById('alertBar');
-        const alertBarContent = document.getElementById('alertBarContent');
+        // Display alert in card if there's an alert
+        const alertCard = document.getElementById('alertCard');
+        const alertCardContent = document.getElementById('alertCardContent');
+        const alertAcknowledgeBtn = document.getElementById('alertAcknowledgeBtn');
+        
         if (feed.alert && feed.alert.trim()) {
-          alertBarContent.innerHTML = linkifyText(feed.alert);
-          alertBar.classList.remove('hidden');
+          const dismissedAlert = localStorage.getItem('dismissedAlert');
+          
+          // Only show if not already dismissed (or content changed)
+          if (dismissedAlert !== feed.alert) {
+            alertCardContent.innerHTML = linkifyText(feed.alert);
+            alertCard.classList.remove('hidden');
+            
+            // Set up acknowledge handler
+            alertAcknowledgeBtn.onclick = () => {
+              localStorage.setItem('dismissedAlert', feed.alert);
+              alertCard.classList.add('hidden');
+            };
+          } else {
+            alertCard.classList.add('hidden');
+          }
         } else {
-          alertBar.classList.add('hidden');
+          alertCard.classList.add('hidden');
         }
         
         let html = '';
@@ -9844,7 +9866,7 @@
               <div style="display: flex; flex-direction: column; gap: 20px;">
                 ${captains.map((captain, index) => `
                   <div style="padding: 16px; background: rgba(96, 108, 56, 0.05); border-radius: 8px; border: 2px solid rgba(96, 108, 56, 0.2);">
-                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary-dark); margin-bottom: 12px; font-family: 'Alegreya', serif;">
+                    <div style="font-weight: 700; font-size: 1.1rem; color: var(--primary-dark); margin-bottom: 12px; font-family: 'Chivo', sans-serif;">
                       ${escapeHtml(captain.name)}
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.95rem;">
@@ -10054,7 +10076,7 @@
             
             return `
               <div class="zone-report-subsection" style="margin-bottom: 24px; padding: 16px; background: rgba(96, 108, 56, 0.03); border-radius: 6px;">
-                <h4 style="margin: 0 0 12px 0; color: var(--primary-dark); font-size: 1.2rem; font-family: 'Alegreya', serif;">
+                <h4 style="margin: 0 0 12px 0; color: var(--primary-dark); font-size: 1.2rem; font-family: 'Chivo', sans-serif;">
                   ${escapeHtml(address)}
                   ${damage ? `<span class="zone-report-badge ${damage.toLowerCase().replace(/\s+/g, '')}">${escapeHtml(damage)}</span>` : ''}
                   ${status ? `<span class="zone-report-badge ${status.toLowerCase().replace(/\s+/g, '').replace('/', '')}">${escapeHtml(status)}</span>` : ''}
