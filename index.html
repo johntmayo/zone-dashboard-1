@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>APPLE Altagether NC Dashboard Prototype</title>
+  <title>Altagether Zone Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="icon" type="image/x-icon" href="resources/images/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -80,12 +80,15 @@
       <div class="nav-section">
         <button class="nav-item active" data-view="home" id="navHome">Home</button>
         <button class="nav-item" data-view="map" id="navMap">Map</button>
-        <button class="nav-item" data-view="people" id="navPeople">Addresses & People</button>
+        <button class="nav-item" data-view="people" id="navPeople">Neighbors</button>
         <button class="nav-item" data-view="meetups" id="navMeetups">Actions</button>
         <button class="nav-item" data-view="tools" id="navTools">Tools</button>
         <button class="nav-item" data-view="help" id="navHelp">Help</button>
       </div>
       <div class="nav-section nav-section-bottom">
+        <button class="nav-beta-feedback" onclick="openBetaFeedback()">
+          🧪 Beta Feedback
+        </button>
         <div class="nav-logo">
           <img src="resources/images/logo_white_transparent.png" alt="Altagether Logo">
         </div>
@@ -303,7 +306,7 @@
     <!-- Addresses & People View (Table) -->
     <div class="content-view hidden" id="peopleView">
       <div class="people-view-header">
-        <h2 style="margin: 0; color: var(--primary-dark); font-size: 1.8rem; letter-spacing: 0.5px; font-family: 'Chivo', sans-serif;">Addresses & People</h2>
+        <h2 style="margin: 0; color: var(--primary-dark); font-size: 1.8rem; letter-spacing: 0.5px; font-family: 'Chivo', sans-serif;">Neighbors</h2>
         <div class="people-view-actions">
           <button class="btn-print-export" id="btnPrintAddresses">🖨️ Print</button>
           <button class="btn-print-export" id="btnExportAddresses">📥 Export CSV</button>
@@ -313,122 +316,191 @@
     </div>
 
     <!-- Tools View -->
+    <!-- 
+      ================================================================================
+      TOOLS PAGE LAYOUT GUIDE
+      ================================================================================
+      
+      This page uses a SECTION + SIZE MODIFIER system to create visual hierarchy
+      while maintaining the bento box aesthetic.
+      
+      STRUCTURE:
+      - Each section has a .tools-section wrapper with a .tools-section__header
+      - Tools within each section live in a .tools-grid
+      
+      SIZE MODIFIERS (add to .tool-module):
+      ┌─────────────────────────────────────────────────────────────────────────────┐
+      │ CLASS                    │ USE FOR                      │ VISUAL WEIGHT    │
+      ├─────────────────────────────────────────────────────────────────────────────┤
+      │ .tool-module--featured   │ Built-in interactive tools   │ Spans 2 columns  │
+      │                          │ (Zone Analysis, Flyer Creator)│ on desktop       │
+      ├─────────────────────────────────────────────────────────────────────────────┤
+      │ .tool-module (default)   │ External resource links      │ Standard size    │
+      │                          │ (Calendar, Wiki, Directory)   │                  │
+      ├─────────────────────────────────────────────────────────────────────────────┤
+      │ .tool-module--compact    │ Utility/reference links      │ Smaller, tighter │
+      │                          │ (Property Sales, quick refs)  │                  │
+      └─────────────────────────────────────────────────────────────────────────────┘
+      
+      TO ADD A NEW TOOL:
+      1. Decide which section it belongs to (Zone Tools vs Community Resources)
+      2. Choose the appropriate size modifier based on what it IS:
+         - Interactive/built-in feature → tool-module--featured
+         - External resource link → tool-module (default)
+         - Reference/utility links → tool-module--compact
+      3. Add it inside the appropriate .tools-grid
+      
+      MOBILE: All cards collapse to single column. Featured cards lose span-2.
+      Section headers help users navigate the vertical stack.
+      ================================================================================
+    -->
     <div class="content-view hidden" id="toolsView">
       <h2 class="page-title">Tools</h2>
       
-      <div class="tools-grid">
-      <!-- Contact List Creator Module removed - functionality integrated into Addresses & People view -->
-
-      <!-- Zone Analysis Generator Module -->
-      <div class="tool-module" id="zoneReportGenerator">
-        <div class="tool-module-header" style="cursor: pointer;">
-          <h3>Zone Analysis <span class="tool-module-toggle">▼</span></h3>
-          <p>Create a comprehensive PDF report with all zone data, statistics, analysis, and insights. Perfect for printing, sharing, or archiving.</p>
-        </div>
-        
-        <div class="tool-module-content">
-        <div class="zone-report-controls">
-          <button class="btn-generate-report" id="btnGenerateReport">📊 Generate Zone Analysis</button>
-          <div class="zone-report-status" id="zoneReportStatus"></div>
-        </div>
-        
-        <div class="zone-report-container hidden" id="zoneReportContainer">
-          <div class="zone-report-actions" style="margin-bottom: 24px; padding: 16px; background: rgba(96, 108, 56, 0.05); border-radius: 8px; border: 2px solid var(--primary);">
-            <button class="btn-export" id="btnExportReportPDF" style="font-size: 1.1rem; padding: 14px 28px;">📥 Export to PDF</button>
-          </div>
-          <div class="zone-report-content" id="zoneReportContent">
-            <!-- Report will be generated here -->
-          </div>
-        </div>
-        </div>
-      </div>
-
-      <!-- Flyer Creator Link Module -->
-      <div class="tool-module" id="flyerCreatorLink" data-no-expand="true">
-        <div class="tool-module-header">
-          <h3>Flyer Creator</h3>
-          <p>Create professional event flyers with customizable designs. Perfect for community meetings, resource distribution, and neighborhood events.</p>
-        </div>
-        <div style="margin-top: 16px;">
-          <a href="flyer_tool.html" target="_blank" rel="noopener noreferrer" class="help-link-btn" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--light-cream); text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 8px rgba(188, 108, 37, 0.3), 0 2px 4px rgba(188, 108, 37, 0.2); letter-spacing: 0.5px; cursor: pointer;">
-            🎨 Open Flyer Creator
-          </a>
-        </div>
-      </div>
-
-      <!-- Neighborhood Captain Directory Link Module -->
-      <div class="tool-module" id="captainDirectoryLink" data-no-expand="true">
-        <div class="tool-module-header">
-          <h3>Neighborhood Captain Directory</h3>
-          <p>Find and connect with volunteer neighborhood captains</p>
-        </div>
-        <div style="margin-top: 16px;">
-          <a href="https://johntmayo.github.io/captain-directory/" target="_blank" rel="noopener noreferrer" class="help-link-btn" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--light-cream); text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 8px rgba(188, 108, 37, 0.3), 0 2px 4px rgba(188, 108, 37, 0.2); letter-spacing: 0.5px; cursor: pointer;">
-            👥 Open Captain Directory
-          </a>
-        </div>
-      </div>
-
-      <!-- Property Sales Info Module -->
-      <div class="tool-module" id="propertySalesInfo" data-no-expand="true">
-        <div class="tool-module-header">
-          <h3>Property Sales Info</h3>
-        </div>
-        <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 12px;">
-          <a href="https://www.zillow.com/altadena-ca-91001/land/?searchQueryState=%7B%22pagination%22%3A%7B%7D%2C%22isMapVisible%22%3Atrue%2C%22mapBounds%22%3A%7B%22west%22%3A-118.21982382767011%2C%22east%22%3A-118.06447028152753%2C%22south%22%3A34.15266683718172%2C%22north%22%3A34.23572954575837%7D%2C%22mapZoom%22%3A14%2C%22usersSearchTerm%22%3A%22Altadena%20CA%2091001%22%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A96265%2C%22regionType%22%3A7%7D%5D%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22sf%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%2C%22doz%22%3A%7B%22value%22%3A%227%22%7D%7D%2C%22isListVisible%22%3Atrue%7D" target="_blank" rel="noopener noreferrer" style="font-weight: bold; color: var(--primary-dark); text-decoration: underline; font-size: 1rem;">
-            New Lots For Sale (last 7 days)
-          </a>
-          <a href="https://www.zillow.com/altadena-ca-91001/land/?searchQueryState=%7B%22pagination%22%3A%7B%7D%2C%22isMapVisible%22%3Atrue%2C%22mapBounds%22%3A%7B%22west%22%3A-118.21982382767011%2C%22east%22%3A-118.06447028152753%2C%22south%22%3A34.153874316895426%2C%22north%22%3A34.23452323757735%7D%2C%22mapZoom%22%3A14%2C%22usersSearchTerm%22%3A%22Altadena%20CA%2091001%22%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A96265%2C%22regionType%22%3A7%7D%5D%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22sf%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%7D" target="_blank" rel="noopener noreferrer" style="font-weight: bold; color: var(--primary-dark); text-decoration: underline; font-size: 1rem;">
-            All Lots for Sale
-          </a>
-          <a href="https://www.zillow.com/altadena-ca-91001/?searchQueryState=%7B%22isMapVisible%22%3Atrue%2C%22mapBounds%22%3A%7B%22north%22%3A34.232110569367%2C%22south%22%3A34.15628922453173%2C%22east%22%3A-118.0801343821745%2C%22west%22%3A-118.20415972702314%7D%2C%22mapZoom%22%3A14%2C%22usersSearchTerm%22%3A%22Altadena%20CA%2091001%22%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%7D%2C%22isListVisible%22%3Atrue%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A96265%2C%22regionType%22%3A7%7D%5D%2C%22pagination%22%3A%7B%7D%7D" target="_blank" rel="noopener noreferrer" style="font-weight: bold; color: var(--primary-dark); text-decoration: underline; font-size: 1rem;">
-            Everything for Sale
-          </a>
-          <p><a href="https://docs.google.com/spreadsheets/d/1qDFwOTnUq87o12n-EeFIZ0xfcqpGOEoNIGFbDJe33a8/edit?gid=757210531#gid=757210531" target="_blank" rel="noopener noreferrer" style="font-weight: bold; color: var(--primary-dark); text-decoration: underline; font-size: 1rem;">
-            Sold Properties List</a> (by Altadena Not for Sale)</p>
+      <!-- ===== ZONE TOOLS SECTION ===== -->
+      <!-- Interactive tools built into the dashboard. Use tool-module--featured for these. -->
+      <div class="tools-section">
+        <h3 class="tools-section__header">Zone Tools</h3>
+        <div class="tools-grid">
           
+          <!-- Zone Analysis Generator Module -->
+          <div class="tool-module tool-module--featured" id="zoneReportGenerator">
+            <div class="tool-module-header" style="cursor: pointer;">
+              <h3>Zone Analysis <span class="tool-module-toggle">▼</span></h3>
+              <p>Create a comprehensive PDF report with all zone data, statistics, analysis, and insights. Perfect for printing, sharing, or archiving.</p>
+            </div>
+            
+            <div class="tool-module-content">
+              <div class="zone-report-controls">
+                <button class="btn-generate-report" id="btnGenerateReport">📊 Generate Zone Analysis</button>
+                <div class="zone-report-status" id="zoneReportStatus"></div>
+              </div>
+              
+              <div class="zone-report-container hidden" id="zoneReportContainer">
+                <div class="zone-report-actions" style="margin-bottom: 24px; padding: 16px; background: rgba(96, 108, 56, 0.05); border-radius: 8px; border: 2px solid var(--primary);">
+                  <button class="btn-export" id="btnExportReportPDF" style="font-size: 1.1rem; padding: 14px 28px;">📥 Export to PDF</button>
+                </div>
+                <div class="zone-report-content" id="zoneReportContent">
+                  <!-- Report will be generated here -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flyer Creator Link Module -->
+          <div class="tool-module tool-module--featured" id="flyerCreatorLink" data-no-expand="true">
+            <div class="tool-module-header">
+              <h3>Flyer Creator</h3>
+              <p>Create professional event flyers with customizable designs. Perfect for community meetings, resource distribution, and neighborhood events.</p>
+            </div>
+            <div style="margin-top: 16px;">
+              <a href="flyer_tool.html" target="_blank" rel="noopener noreferrer" class="tool-link-btn">
+                🎨 Open Flyer Creator
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <!-- Altadena Recovery Wiki Module -->
-      <div class="tool-module" id="altadenaRecoveryWiki" data-no-expand="true">
-        <div class="tool-module-header">
-          <h3>Altadena Recovery Wiki</h3>
-          <p>Comprehensive community resource for Eaton Fire recovery information, including rebuilding guides, permits, financial relief, community support, and professional resources.</p>
-        </div>
-        <div style="margin-top: 16px;">
-          <a href="https://altadenawiki.com/wiki/Main_Page" target="_blank" rel="noopener noreferrer" class="help-link-btn" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--light-cream); text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 8px rgba(188, 108, 37, 0.3), 0 2px 4px rgba(188, 108, 37, 0.2); letter-spacing: 0.5px; cursor: pointer;">
-            📖 Open Recovery Wiki
-          </a>
+      <!-- ===== COMMUNITY RESOURCES SECTION ===== -->
+      <!-- Curated external links and community-maintained resources. Use default tool-module for these. -->
+      <div class="tools-section">
+        <h3 class="tools-section__header">Community Resources</h3>
+        <div class="tools-grid">
+
+          <!-- Altadena Community Recovery Calendar Module -->
+          <div class="tool-module" id="altadenaCalendar" data-no-expand="true">
+            <div class="tool-module-header">
+              <h3>Altadena Community Recovery Calendar</h3>
+              <p>The most comprehensive public calendar of events around town. Brought to you by Courage (Zone 48) and Altadena Rising.</p>
+            </div>
+            <div style="margin-top: 16px;">
+              <a href="https://altadenacalendar.org/" target="_blank" rel="noopener noreferrer" class="tool-link-btn">
+                📅 Open Calendar
+              </a>
+            </div>
+          </div>
+
+          <!-- Altadena Recovery Wiki Module -->
+          <div class="tool-module" id="altadenaRecoveryWiki" data-no-expand="true">
+            <div class="tool-module-header">
+              <h3>Altadena Recovery Wiki</h3>
+              <p>Comprehensive community resource for Eaton Fire recovery information, including rebuilding guides, permits, financial relief, community support, and professional resources.</p>
+            </div>
+            <div style="margin-top: 16px;">
+              <a href="https://altadenawiki.com/wiki/Main_Page" target="_blank" rel="noopener noreferrer" class="tool-link-btn">
+                📖 Open Recovery Wiki
+              </a>
+            </div>
+          </div>
+
+          <!-- Neighborhood Captain Directory Link Module -->
+          <div class="tool-module" id="captainDirectoryLink" data-no-expand="true">
+            <div class="tool-module-header">
+              <h3>Neighborhood Captain Directory</h3>
+              <p>Find and connect with volunteer neighborhood captains across Altadena zones.</p>
+            </div>
+            <div style="margin-top: 16px;">
+              <a href="https://johntmayo.github.io/captain-directory/" target="_blank" rel="noopener noreferrer" class="tool-link-btn">
+                👥 Open Captain Directory
+              </a>
+            </div>
+          </div>
+
+          <!-- Property Sales Info Module - Compact utility card -->
+          <div class="tool-module tool-module--compact" id="propertySalesInfo" data-no-expand="true">
+            <div class="tool-module-header">
+              <h3>Property Sales Info</h3>
+            </div>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+              <a href="https://www.zillow.com/altadena-ca-91001/land/?searchQueryState=%7B%22pagination%22%3A%7B%7D%2C%22isMapVisible%22%3Atrue%2C%22mapBounds%22%3A%7B%22west%22%3A-118.21982382767011%2C%22east%22%3A-118.06447028152753%2C%22south%22%3A34.15266683718172%2C%22north%22%3A34.23572954575837%7D%2C%22mapZoom%22%3A14%2C%22usersSearchTerm%22%3A%22Altadena%20CA%2091001%22%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A96265%2C%22regionType%22%3A7%7D%5D%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22sf%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%2C%22doz%22%3A%7B%22value%22%3A%227%22%7D%7D%2C%22isListVisible%22%3Atrue%7D" target="_blank" rel="noopener noreferrer" style="font-weight: bold; color: var(--primary-dark); text-decoration: underline; font-size: 0.95rem;">
+                New Lots For Sale (last 7 days)
+              </a>
+              <a href="https://www.zillow.com/altadena-ca-91001/land/?searchQueryState=%7B%22pagination%22%3A%7B%7D%2C%22isMapVisible%22%3Atrue%2C%22mapBounds%22%3A%7B%22west%22%3A-118.21982382767011%2C%22east%22%3A-118.06447028152753%2C%22south%22%3A34.153874316895426%2C%22north%22%3A34.23452323757735%7D%2C%22mapZoom%22%3A14%2C%22usersSearchTerm%22%3A%22Altadena%20CA%2091001%22%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A96265%2C%22regionType%22%3A7%7D%5D%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%2C%22sf%22%3A%7B%22value%22%3Afalse%7D%2C%22tow%22%3A%7B%22value%22%3Afalse%7D%2C%22mf%22%3A%7B%22value%22%3Afalse%7D%2C%22con%22%3A%7B%22value%22%3Afalse%7D%2C%22apa%22%3A%7B%22value%22%3Afalse%7D%2C%22manu%22%3A%7B%22value%22%3Afalse%7D%2C%22apco%22%3A%7B%22value%22%3Afalse%7D%7D%2C%22isListVisible%22%3Atrue%7D" target="_blank" rel="noopener noreferrer" style="font-weight: bold; color: var(--primary-dark); text-decoration: underline; font-size: 0.95rem;">
+                All Lots for Sale
+              </a>
+              <a href="https://www.zillow.com/altadena-ca-91001/?searchQueryState=%7B%22isMapVisible%22%3Atrue%2C%22mapBounds%22%3A%7B%22north%22%3A34.232110569367%2C%22south%22%3A34.15628922453173%2C%22east%22%3A-118.0801343821745%2C%22west%22%3A-118.20415972702314%7D%2C%22mapZoom%22%3A14%2C%22usersSearchTerm%22%3A%22Altadena%20CA%2091001%22%2C%22filterState%22%3A%7B%22sort%22%3A%7B%22value%22%3A%22globalrelevanceex%22%7D%7D%2C%22isListVisible%22%3Atrue%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A96265%2C%22regionType%22%3A7%7D%5D%2C%22pagination%22%3A%7B%7D%7D" target="_blank" rel="noopener noreferrer" style="font-weight: bold; color: var(--primary-dark); text-decoration: underline; font-size: 0.95rem;">
+                Everything for Sale
+              </a>
+              <a href="https://docs.google.com/spreadsheets/d/1qDFwOTnUq87o12n-EeFIZ0xfcqpGOEoNIGFbDJe33a8/edit?gid=757210531#gid=757210531" target="_blank" rel="noopener noreferrer" style="font-weight: bold; color: var(--primary-dark); text-decoration: underline; font-size: 0.95rem;">
+                Sold Properties List
+              </a>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <!-- Buildnotes Module -->
-      <div class="tool-module" id="buildnotes" data-no-expand="true">
+      <!-- ===== HIDDEN TOOLS ===== -->
+      <!-- Tools that are hidden but kept in code for future use -->
+      
+      <!-- Buildnotes Module (Hidden for now) -->
+      <div class="tool-module hidden" id="buildnotes" data-no-expand="true">
         <div class="tool-module-header">
           <h3>Buildnotes</h3>
           <p>Buildnotes is a collective purchasing platform for survivors, architects, and builders involved in the LA wildfire rebuild.</p>
         </div>
         <div style="margin-top: 16px;">
-          <a href="https://buildnotes.com" target="_blank" rel="noopener noreferrer" class="help-link-btn" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--light-cream); text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 8px rgba(188, 108, 37, 0.3), 0 2px 4px rgba(188, 108, 37, 0.2); letter-spacing: 0.5px; cursor: pointer;">
+          <a href="https://buildnotes.com" target="_blank" rel="noopener noreferrer" class="tool-link-btn">
             🏗️ Open Buildnotes
           </a>
         </div>
       </div>
 
-      <!-- Data Transfer Tool Module -->
-      <div class="tool-module" id="dataTransferTool" data-no-expand="true">
+      <!-- Data Transfer Tool Module (Hidden) -->
+      <div class="tool-module hidden" id="dataTransferTool" data-no-expand="true">
         <div class="tool-module-header">
           <h3>Data Transfer Tool</h3>
           <p>Transfer and translate your data from your existing spreadsheet to the new Google spreadsheet backend. This tool helps you migrate your data seamlessly to the new platform.</p>
         </div>
         <div style="margin-top: 16px;">
-          <button class="help-link-btn" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); color: var(--light-cream); text-decoration: none; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 8px rgba(188, 108, 37, 0.3), 0 2px 4px rgba(188, 108, 37, 0.2); letter-spacing: 0.5px; cursor: pointer;">
+          <button class="tool-link-btn">
             🔄 Open Data Transfer Tool
           </button>
         </div>
       </div>
-      </div>
+
     </div>
 
     <!-- Actions View -->
@@ -577,6 +649,7 @@
     let metadataSheetId = null; // Sheet ID for metadata sheet
     let autoSaveTimer = null; // Timer for debounced auto-save
     let currentZoneName = ''; // Current zone name from spreadsheet
+    let homeKmlLoading = false; // Prevent duplicate KML loads causing transparency issues
 
     // Load OAuth token from localStorage
     const savedToken = localStorage.getItem('googleOAuthToken');
@@ -4903,25 +4976,38 @@
       }
     }
 
-    // Create colored marker icon using SVG
-    function createColoredMarkerIcon(color, isSelected = false) {
-      const size = isSelected ? 30 : 25;
-      const anchor = isSelected ? 15 : 12;
+    // Default marker colors (using our palette)
+    const DEFAULT_MARKER_COLOR = '#347072';  // Teal - matches our accent
+    const SELECTED_MARKER_COLOR = '#BC5838'; // Clay - stands out when selected
+    
+    // Create colored marker icon using SVG (circle style with zine shadow)
+    function createColoredMarkerIcon(color, isSelected = false, smallSize = false) {
+      const baseSize = smallSize ? 16 : 20;  // Slightly larger to accommodate shadow
+      const size = isSelected ? baseSize * 1.25 : baseSize;
+      const strokeWidth = isSelected ? 2 : 1.5;  // Thinner charcoal border
+      const anchor = (size / 2) - 1;  // Offset anchor slightly to account for shadow
       
+      // Zine-style circle with hard offset shadow
       const svgIcon = `
-        <svg width="${size}" height="${size * 1.64}" viewBox="0 0 25 41" xmlns="http://www.w3.org/2000/svg">
-          <path fill="${color}" stroke="#fff" stroke-width="1.5" d="M12.5 0C5.6 0 0 5.6 0 12.5c0 8.2 12.5 28.5 12.5 28.5S25 20.7 25 12.5C25 5.6 19.4 0 12.5 0z"/>
-          <circle cx="12.5" cy="12.5" r="4" fill="#fff"/>
+        <svg width="${size}" height="${size}" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="8" fill="#1F2937"/>
+          <circle cx="10" cy="10" r="8" fill="${color}" stroke="#1F2937" stroke-width="${strokeWidth}"/>
         </svg>
       `;
       
       return L.divIcon({
         html: svgIcon,
         className: 'custom-colored-marker',
-        iconSize: [size, size * 1.64],
-        iconAnchor: [anchor, size * 1.64],
-        popupAnchor: [1, -(size * 1.64) + 10]
+        iconSize: [size, size],
+        iconAnchor: [anchor, anchor],
+        popupAnchor: [0, -anchor]
       });
+    }
+    
+    // Get default marker icon (teal for normal, clay for selected)
+    function getDefaultMarkerIcon(isSelected = false, smallSize = false) {
+      const color = isSelected ? SELECTED_MARKER_COLOR : DEFAULT_MARKER_COLOR;
+      return createColoredMarkerIcon(color, isSelected, smallSize);
     }
 
     // Color palette
@@ -5022,29 +5108,11 @@
             marker.setIcon(createColoredMarkerIcon(color, isSelected));
           } else {
             // Fallback to default if no color determined
-            marker.setIcon(L.icon({
-              iconUrl: isSelected 
-                ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png'
-                : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowSize: [41, 41]
-            }));
+            marker.setIcon(getDefaultMarkerIcon(isSelected));
           }
         } else {
-          // Default: blue for normal, red for selected
-          marker.setIcon(L.icon({
-            iconUrl: isSelected 
-              ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png'
-              : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [25, 41],
-            iconAnchor: [12, 41],
-            popupAnchor: [1, -34],
-            shadowSize: [41, 41]
-          }));
+          // Default: teal for normal, clay for selected
+          marker.setIcon(getDefaultMarkerIcon(isSelected));
         }
       });
     }
@@ -5241,7 +5309,7 @@
       const ColorFilterControl = L.Control.extend({
         onAdd: function(map) {
           const container = L.DomUtil.create('div', 'color-filter-control');
-          container.style.cssText = 'background: white; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.4); padding: 8px; font-size: 0.75rem; min-width: 140px;';
+          container.style.cssText = 'background: white; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.4); padding: 8px; font-size: 0.75rem; width: 120px;';
           
           // Header
           const header = L.DomUtil.create('div', 'color-filter-header', container);
@@ -5251,7 +5319,7 @@
           // Contact Status button
           const contactBtn = L.DomUtil.create('button', 'color-filter-btn', container);
           contactBtn.textContent = 'Contact Status';
-          contactBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.75rem; text-align: left; transition: all 0.2s;';
+          contactBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.7rem; text-align: left; transition: all 0.2s;';
           contactBtn.onmouseover = () => contactBtn.style.background = '#f5f5f5';
           contactBtn.onmouseout = () => {
             if (homeColorMode !== 'contact') contactBtn.style.background = 'white';
@@ -5260,7 +5328,7 @@
           // Damage Status button
           const damageBtn = L.DomUtil.create('button', 'color-filter-btn', container);
           damageBtn.textContent = 'Damage Status';
-          damageBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.75rem; text-align: left; transition: all 0.2s;';
+          damageBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.7rem; text-align: left; transition: all 0.2s;';
           damageBtn.onmouseover = () => damageBtn.style.background = '#f5f5f5';
           damageBtn.onmouseout = () => {
             if (homeColorMode !== 'damage') damageBtn.style.background = 'white';
@@ -5271,7 +5339,7 @@
           if (hasMultipleCaptains && captainAssignedCol) {
             captainBtn = L.DomUtil.create('button', 'color-filter-btn', container);
             captainBtn.textContent = 'Captain Assigned';
-            captainBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.75rem; text-align: left; transition: all 0.2s;';
+            captainBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.7rem; text-align: left; transition: all 0.2s;';
             captainBtn.onmouseover = () => captainBtn.style.background = '#f5f5f5';
             captainBtn.onmouseout = () => {
               if (homeColorMode !== 'captain') captainBtn.style.background = 'white';
@@ -5422,6 +5490,25 @@
     function ensureColorFilterControl() {
       if (!zoneMap) return;
       
+      // Check if zone has multiple captains (to verify control has correct buttons)
+      let shouldHaveCaptainBtn = false;
+      if (sheetData && sheetData.headers && sheetData.data && sheetData.data.length > 0) {
+        const headers = sheetData.headers;
+        const ncNameCol = findColumn(headers, 'nc name');
+        const ncPhoneCol = findColumn(headers, 'nc phone');
+        const ncEmailCol = findColumn(headers, 'nc email');
+        const captainAssignedCol = findColumn(headers, 'captain assigned');
+        
+        if (ncNameCol && captainAssignedCol) {
+          const firstRow = sheetData.data[0];
+          const ncName = firstRow[ncNameCol] ? (firstRow[ncNameCol] || '').trim() : '';
+          const ncPhone = ncPhoneCol ? (firstRow[ncPhoneCol] || '').trim() : '';
+          const ncEmail = ncEmailCol ? (firstRow[ncEmailCol] || '').trim() : '';
+          const captains = parseCaptains(ncName, ncPhone, ncEmail);
+          shouldHaveCaptainBtn = captains.length > 1;
+        }
+      }
+      
       // Check if control instance exists and is on the map
       if (colorFilterControl) {
         // Check if the control's DOM element still exists
@@ -5432,11 +5519,24 @@
           const controlContainer = existingControl.closest('.leaflet-control-container');
           
           if (controlContainer && mapContainer.contains(controlContainer)) {
-            // Control is properly attached, just ensure it's visible
-            if (controlContainer.style.display === 'none') {
-              controlContainer.style.display = '';
+            // Check if control has the right number of buttons
+            const buttons = existingControl.querySelectorAll('button');
+            const hasCaptainBtn = buttons.length > 2;
+            
+            // If captain button state doesn't match, recreate the control
+            if (shouldHaveCaptainBtn !== hasCaptainBtn) {
+              // Remove old control and recreate
+              if (existingControl.parentNode) {
+                existingControl.parentNode.removeChild(existingControl);
+              }
+              colorFilterControl = null;
+            } else {
+              // Control is properly attached with correct buttons, just ensure it's visible
+              if (controlContainer.style.display === 'none') {
+                controlContainer.style.display = '';
+              }
+              return; // Control exists and is properly attached
             }
-            return; // Control exists and is properly attached
           }
         }
         // Control instance exists but DOM is missing or detached - reset reference
@@ -5558,7 +5658,7 @@
       const ColorFilterControl = L.Control.extend({
         onAdd: function(map) {
           const container = L.DomUtil.create('div', 'color-filter-control');
-          container.style.cssText = 'background: white; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.4); padding: 8px; font-size: 0.75rem; min-width: 140px;';
+          container.style.cssText = 'background: white; border-radius: 4px; box-shadow: 0 1px 5px rgba(0,0,0,0.4); padding: 8px; font-size: 0.75rem; width: 120px;';
           
           // Header
           const header = L.DomUtil.create('div', 'color-filter-header', container);
@@ -5568,7 +5668,7 @@
           // Contact Status button
           const contactBtn = L.DomUtil.create('button', 'color-filter-btn', container);
           contactBtn.textContent = 'Contact Status';
-          contactBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.75rem; text-align: left; transition: all 0.2s;';
+          contactBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.7rem; text-align: left; transition: all 0.2s;';
           contactBtn.onmouseover = () => contactBtn.style.background = '#f5f5f5';
           contactBtn.onmouseout = () => {
             if (currentColorMode !== 'contact') contactBtn.style.background = 'white';
@@ -5577,7 +5677,7 @@
           // Damage Status button
           const damageBtn = L.DomUtil.create('button', 'color-filter-btn', container);
           damageBtn.textContent = 'Damage Status';
-          damageBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.75rem; text-align: left; transition: all 0.2s;';
+          damageBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.7rem; text-align: left; transition: all 0.2s;';
           damageBtn.onmouseover = () => damageBtn.style.background = '#f5f5f5';
           damageBtn.onmouseout = () => {
             if (currentColorMode !== 'damage') damageBtn.style.background = 'white';
@@ -5588,7 +5688,7 @@
           if (hasMultipleCaptains && captainAssignedCol) {
             captainBtn = L.DomUtil.create('button', 'color-filter-btn', container);
             captainBtn.textContent = 'Captain Assigned';
-            captainBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.75rem; text-align: left; transition: all 0.2s;';
+            captainBtn.style.cssText = 'width: 100%; padding: 6px 8px; margin-bottom: 4px; border: 1px solid #ddd; border-radius: 3px; background: white; cursor: pointer; font-size: 0.7rem; text-align: left; transition: all 0.2s;';
             captainBtn.onmouseover = () => captainBtn.style.background = '#f5f5f5';
             captainBtn.onmouseout = () => {
               if (currentColorMode !== 'captain') captainBtn.style.background = 'white';
@@ -5703,8 +5803,8 @@
           // Default center (Altadena, CA - adjust as needed)
           zoneMap = L.map('zoneMap').setView([34.19, -118.15], 12);
           
-          // Add CartoDB Positron tiles (grayscale for Zine aesthetic)
-          currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          // Add CartoDB Voyager tiles (warm, colorful with labels)
+          currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '© OpenStreetMap contributors, © CARTO',
             maxZoom: 19,
             subdomains: 'abcd'
@@ -5732,8 +5832,8 @@
                 
                 // Toggle between street and satellite
                 if (isSatelliteMode) {
-                  // Switch to street map (CartoDB Positron - grayscale)
-                  currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                  // Switch to street map (CartoDB Voyager)
+                  currentTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                     attribution: '© OpenStreetMap contributors, © CARTO',
                     maxZoom: 19,
                     subdomains: 'abcd'
@@ -5826,8 +5926,8 @@
           // Default center (Altadena, CA - adjust as needed)
           homeMap = L.map('homeMap').setView([34.19, -118.15], 12);
           
-          // Add CartoDB Positron tiles (grayscale for Zine aesthetic)
-          homeTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+          // Add CartoDB Voyager tiles (warm, colorful with labels)
+          homeTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '© OpenStreetMap contributors, © CARTO',
             maxZoom: 19,
             subdomains: 'abcd'
@@ -5855,8 +5955,8 @@
                 
                 // Toggle between street and satellite
                 if (isHomeSatelliteMode) {
-                  // Switch to street map (CartoDB Positron - grayscale)
-                  homeTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                  // Switch to street map (CartoDB Voyager)
+                  homeTileLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                     attribution: '© OpenStreetMap contributors, © CARTO',
                     maxZoom: 19,
                     subdomains: 'abcd'
@@ -5982,28 +6082,14 @@
       if (homeColorMode) {
         const color = getHomeMapMarkerColor(address);
         if (color) {
-          icon = createColoredMarkerIcon(color, false);
+          icon = createColoredMarkerIcon(color, false, true);  // smallSize = true for home map
         } else {
-          // Fallback to default blue
-          icon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [20, 32],
-            iconAnchor: [10, 32],
-            popupAnchor: [1, -28],
-            shadowSize: [32, 32]
-          });
+          // Fallback to default teal
+          icon = getDefaultMarkerIcon(false, true);
         }
       } else {
-        // Default blue marker
-        icon = L.icon({
-          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-          iconSize: [20, 32],
-          iconAnchor: [10, 32],
-          popupAnchor: [1, -28],
-          shadowSize: [32, 32]
-        });
+        // Default teal marker
+        icon = getDefaultMarkerIcon(false, true);
       }
       
       const marker = L.marker([lat, lng], { icon }).addTo(homeMap);
@@ -6067,28 +6153,14 @@
         if (homeColorMode) {
           const color = getHomeMapMarkerColor(address);
           if (color) {
-            marker.setIcon(createColoredMarkerIcon(color, false));
+            marker.setIcon(createColoredMarkerIcon(color, false, true));  // smallSize = true for home map
           } else {
-            // Fallback to default blue
-            marker.setIcon(L.icon({
-              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-              iconSize: [20, 32],
-              iconAnchor: [10, 32],
-              popupAnchor: [1, -28],
-              shadowSize: [32, 32]
-            }));
+            // Fallback to default teal
+            marker.setIcon(getDefaultMarkerIcon(false, true));
           }
         } else {
-          // Default blue marker
-          marker.setIcon(L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-            iconSize: [20, 32],
-            iconAnchor: [10, 32],
-            popupAnchor: [1, -28],
-            shadowSize: [32, 32]
-          }));
+          // Default teal marker
+          marker.setIcon(getDefaultMarkerIcon(false, true));
         }
       });
     }
@@ -6108,6 +6180,12 @@
         }, 500);
         return;
       }
+      
+      // Prevent duplicate parallel loads that cause transparency inconsistency
+      if (homeKmlLoading) {
+        return;
+      }
+      homeKmlLoading = true;
       
       try {
         // Remove existing KML layer
@@ -6198,6 +6276,8 @@
         }
       } catch (error) {
         console.error('Error loading KML for home map:', error);
+      } finally {
+        homeKmlLoading = false; // Always reset the flag
       }
     }
 
@@ -6363,24 +6443,10 @@
             if (color) {
               marker.setIcon(createColoredMarkerIcon(color, true));
             } else {
-              marker.setIcon(L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
-              }));
+              marker.setIcon(getDefaultMarkerIcon(true));
             }
           } else {
-            marker.setIcon(L.icon({
-              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowSize: [41, 41]
-            }));
+            marker.setIcon(getDefaultMarkerIcon(true));
           }
         } else if (selectedAddress && marker.address !== selectedAddress) {
           // Reset other markers - use colored icon if color mode is active
@@ -6389,24 +6455,10 @@
             if (color) {
               marker.setIcon(createColoredMarkerIcon(color, false));
             } else {
-              marker.setIcon(L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
-              }));
+              marker.setIcon(getDefaultMarkerIcon(false));
             }
           } else {
-            marker.setIcon(L.icon({
-              iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowSize: [41, 41]
-            }));
+            marker.setIcon(getDefaultMarkerIcon(false));
           }
         }
       });
@@ -6553,29 +6605,11 @@
               icon = createColoredMarkerIcon(color, isSelected);
             } else {
               // Fallback to default if no color determined
-              icon = L.icon({
-                iconUrl: isSelected 
-                  ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png'
-                  : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
-              });
+              icon = getDefaultMarkerIcon(isSelected);
             }
           } else {
-            // Default: blue for normal, red for selected
-            icon = L.icon({
-              iconUrl: isSelected 
-                ? 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png'
-                : 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
-              shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-              iconSize: [25, 41],
-              iconAnchor: [12, 41],
-              popupAnchor: [1, -34],
-              shadowSize: [41, 41]
-            });
+            // Default: teal for normal, clay for selected
+            icon = getDefaultMarkerIcon(isSelected);
           }
           
           const marker = L.marker([lat, lon], { icon: icon }).addTo(zoneMap);
@@ -8741,12 +8775,12 @@
         const feed = await response.json();
         let html = '';
         
-        // Display each action as a card
+        // Display each action as a card (styled like "From Altagether" panel)
         if (feed.items && feed.items.length > 0) {
           feed.items.forEach(item => {
             if (item.label) {
               html += `
-                <div class="action-card">
+                <div class="action-card action-card--altagether">
                   <div class="action-card-title">${item.label}</div>
                   ${item.content && item.content.length > 0 ? item.content.map(contentText => 
                     `<div class="action-card-content">${linkifyText(contentText)}</div>`
@@ -10971,6 +11005,33 @@
     // Make displayAddressList available globally for back button
     window.displayAddressList = displayAddressList;
     window.toggleToolModule = toggleToolModule;
+    
+    // Beta Feedback Modal
+    function openBetaFeedback() {
+      document.getElementById('betaFeedbackModal').classList.add('active');
+    }
+    
+    function closeBetaFeedback() {
+      document.getElementById('betaFeedbackModal').classList.remove('active');
+    }
   </script>
+  
+  <!-- Beta Feedback Modal -->
+  <div class="beta-feedback-modal" id="betaFeedbackModal" onclick="if(event.target === this) closeBetaFeedback()">
+    <div class="beta-feedback-modal-content">
+      <div class="beta-feedback-modal-header">
+        <h3>🧪 Beta Feedback</h3>
+        <button class="beta-feedback-close" onclick="closeBetaFeedback()">&times;</button>
+      </div>
+      <iframe 
+        class="airtable-embed" 
+        src="https://airtable.com/embed/appLrjspqPboCt2ma/pagutixyE91qfPMVd/form" 
+        frameborder="0" 
+        width="100%" 
+        height="700" 
+        style="background: transparent;">
+      </iframe>
+    </div>
+  </div>
 </body>
 </html>

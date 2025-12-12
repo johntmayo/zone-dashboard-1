@@ -15,6 +15,7 @@ app.use(express.static('.')); // Serve static files from current directory
 // Set CENTRAL_SHEET_ID environment variable or update the default below
 // To get the sheet ID from a Google Sheets URL: https://docs.google.com/spreadsheets/d/SHEET_ID_HERE/edit
 const CENTRAL_SHEET_ID = process.env.CENTRAL_SHEET_ID || '1PaqcX2BSypJjLBDMA3DnlAxCHK5y0TWMSbCIkTScIQU';
+const ACTIONS_SHEET_ID = process.env.ACTIONS_SHEET_ID || '1g6gmdXF1yjrejpmT3HTY7JI1Zzb7jErYZQ2pwiH37I0';
 
 // Helper function to get sheet gid (grid ID) from sheet name for public sheets
 async function getSheetGid(sheetId, sheetName) {
@@ -314,10 +315,10 @@ app.get('/api/homepage-feed', async (req, res) => {
 // API Route: Actions Feed
 app.get('/api/actions-feed', async (req, res) => {
   try {
-    console.log('Fetching actions feed from central sheet...');
+    console.log('Fetching actions feed from actions sheet...');
     
-    // Fetch the "actions" tab from the central sheet
-    const { headers, rows } = await fetchPublicSheet(CENTRAL_SHEET_ID, 'A1:ZZ1000', 'actions');
+    // Fetch from the dedicated actions sheet (no tab name needed - uses first sheet)
+    const { headers, rows } = await fetchPublicSheet(ACTIONS_SHEET_ID);
     
     console.log('Headers found:', headers);
     console.log('Number of rows:', rows.length);
@@ -385,7 +386,8 @@ app.get('*', (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`Central sheet ID: ${CENTRAL_SHEET_ID}`);
-  console.log(`To change the sheet, update CENTRAL_SHEET_ID in server.js or set CENTRAL_SHEET_ID environment variable`);
+  console.log(`Central sheet ID (announcements): ${CENTRAL_SHEET_ID}`);
+  console.log(`Actions sheet ID: ${ACTIONS_SHEET_ID}`);
+  console.log(`To change sheets, update the IDs in server.js or set environment variables`);
 });
 
