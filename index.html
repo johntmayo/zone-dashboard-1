@@ -8692,6 +8692,85 @@
     // Helper function to convert markdown-style links and URLs to clickable links
     // linkifyText moved to js/utils.js
 
+    // Helper function to fetch Google Sheet directly (for static hosting like GitHub Pages)
+    async function fetchSheetDirectly(sheetId) {
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0`;
+      
+      const response = await fetch(csvUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch sheet: ${response.status}`);
+      }
+      
+      const csvText = await response.text();
+      const lines = csvText.split('\n').filter(line => line.trim());
+      
+      if (lines.length === 0) return { items: [], alert: null };
+      
+      // Parse CSV (simple parser for quoted fields)
+      function parseCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+            else { inQuotes = !inQuotes; }
+          } else if (char === ',' && !inQuotes) {
+            result.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        result.push(current.trim());
+        return result;
+      }
+      
+      const headers = parseCSVLine(lines[0]);
+      const rows = lines.slice(1).map(line => {
+        const values = parseCSVLine(line);
+        const row = {};
+        headers.forEach((header, index) => { row[header] = values[index] || ''; });
+        return row;
+      });
+      
+      // Build result (same logic as server.js)
+      const result = { items: [], alert: null };
+      const labelCol = headers[0] || 'Label';
+      const contentCol = headers[1] || 'Content';
+      
+      // Check for alert in first row
+      if (rows.length > 0) {
+        const alertLabel = (rows[0][labelCol] || '').trim().toUpperCase();
+        if (alertLabel === 'ALERT' || alertLabel === 'URGENT') {
+          const alertText = (rows[0][contentCol] || '').trim();
+          if (alertText) result.alert = alertText;
+        }
+      }
+      
+      // Process rows
+      rows.forEach((row, index) => {
+        if (index === 0) {
+          const rowLabel = (row[labelCol] || '').trim().toUpperCase();
+          if (rowLabel === 'ALERT' || rowLabel === 'URGENT') return;
+        }
+        
+        const label = (row[labelCol] || '').trim();
+        if (!label) return;
+        
+        const content = [];
+        for (let i = 1; i < headers.length; i++) {
+          const val = (row[headers[i]] || '').trim();
+          if (val) content.push(val);
+        }
+        
+        result.items.push({ label, content });
+      });
+      
+      return result;
+    }
+
     // Panel C: From Altagether (Central Feed)
     async function fetchAndDisplayCentralFeed() {
       const content = document.getElementById('altagetherContent');
@@ -8699,13 +8778,24 @@
       
       content.innerHTML = '<div class="loading">Loading announcements...</div>';
       
+      // Central sheet ID - same one from server.js
+      const CENTRAL_SHEET_ID = '1PaqcX2BSypJjLBDMA3DnlAxCHK5y0TWMSbCIkTScIQU';
+      
       try {
-        const response = await fetch('/api/homepage-feed');
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        // Try backend API first (for localhost), fallback to direct Google Sheets fetch
+        let feed;
+        try {
+          const response = await fetch('/api/homepage-feed');
+          if (response.ok) {
+            feed = await response.json();
+          } else {
+            throw new Error('Backend not available');
+          }
+        } catch (backendError) {
+          // Fallback: Fetch directly from Google Sheets (for GitHub Pages)
+          console.log('Backend unavailable, fetching directly from Google Sheets...');
+          feed = await fetchSheetDirectly(CENTRAL_SHEET_ID);
         }
-        
-        const feed = await response.json();
         
         // Display alert in card if there's an alert
         const alertCard = document.getElementById('alertCard');
@@ -8761,18 +8851,99 @@
       }
     }
 
+    // Helper function to fetch Actions sheet directly (for static hosting like GitHub Pages)
+    async function fetchActionsSheetDirectly(sheetId) {
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=0`;
+      
+      const response = await fetch(csvUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch actions sheet: ${response.status}`);
+      }
+      
+      const csvText = await response.text();
+      const lines = csvText.split('\n').filter(line => line.trim());
+      
+      if (lines.length === 0) return { items: [] };
+      
+      // Parse CSV (simple parser for quoted fields)
+      function parseCSVLine(line) {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') { current += '"'; i++; }
+            else { inQuotes = !inQuotes; }
+          } else if (char === ',' && !inQuotes) {
+            result.push(current.trim());
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        result.push(current.trim());
+        return result;
+      }
+      
+      const headers = parseCSVLine(lines[0]);
+      const rows = lines.slice(1).map(line => {
+        const values = parseCSVLine(line);
+        const row = {};
+        headers.forEach((header, index) => { row[header] = values[index] || ''; });
+        return row;
+      });
+      
+      // Build result
+      const result = { items: [] };
+      const labelCol = headers[0] || 'Label';
+      
+      // Look for ContentA, ContentB, ContentC, ContentD columns (case-insensitive)
+      const contentCols = ['ContentA', 'ContentB', 'ContentC', 'ContentD'].map(colName => {
+        return headers.find(h => h.trim().toLowerCase() === colName.toLowerCase());
+      }).filter(Boolean);
+      
+      // Process rows
+      rows.forEach((row) => {
+        const label = (row[labelCol] || '').trim();
+        if (!label) return;
+        
+        const content = [];
+        contentCols.forEach(colName => {
+          const val = (row[colName] || '').trim();
+          if (val) content.push(val);
+        });
+        
+        result.items.push({ label, content });
+      });
+      
+      return result;
+    }
+
     // Fetch and display actions from spreadsheet
     async function fetchAndDisplayActions() {
       const content = document.getElementById('actionsPageContent');
       if (!content) return '';
       
+      // Actions sheet ID - same one from server.js
+      const ACTIONS_SHEET_ID = '1g6gmdXF1yjrejpmT3HTY7JI1Zzb7jErYZQ2pwiH37I0';
+      
       try {
-        const response = await fetch('/api/actions-feed');
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        // Try backend API first (for localhost), fallback to direct Google Sheets fetch
+        let feed;
+        try {
+          const response = await fetch('/api/actions-feed');
+          if (response.ok) {
+            feed = await response.json();
+          } else {
+            throw new Error('Backend not available');
+          }
+        } catch (backendError) {
+          // Fallback: Fetch directly from Google Sheets (for GitHub Pages)
+          console.log('Backend unavailable for actions, fetching directly from Google Sheets...');
+          feed = await fetchActionsSheetDirectly(ACTIONS_SHEET_ID);
         }
         
-        const feed = await response.json();
         let html = '';
         
         // Display each action as a card (styled like "From Altagether" panel)
