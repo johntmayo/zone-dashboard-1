@@ -288,6 +288,43 @@
       width: 5px;
     }
 
+    /* Beta Testers Nav Item - Special standout styling */
+    .nav-item-beta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+      text-decoration: none;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(245, 158, 11, 0.4);
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(245, 158, 11, 0.05) 100%);
+      color: var(--accent-gold) !important;
+      position: relative;
+    }
+
+    .nav-item-beta::before {
+      background: var(--accent-gold) !important;
+      transform: scaleY(1) !important;
+      width: 3px !important;
+    }
+
+    .nav-item-beta:hover {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(245, 158, 11, 0.12) 100%);
+      color: #fbbf24 !important;
+    }
+
+    .nav-item-beta .beta-star {
+      color: var(--accent-gold);
+      font-size: 0.9rem;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.9); }
+    }
+
     .sheet-link-section {
       display: flex;
       flex-direction: column;
@@ -3741,13 +3778,32 @@
 
     /* Dim and blur nav bars when overlay is visible */
     body:has(.welcome-overlay:not(.hidden)) .top-header,
-    body:has(.welcome-overlay:not(.hidden)) .left-nav,
     body:has(.welcome-overlay:not(.hidden)) .floating-panel,
     body:has(.welcome-overlay:not(.hidden)) .app-container {
       opacity: 0.4;
       filter: blur(8px);
       pointer-events: none;
       transition: opacity 0.2s ease, filter 0.2s ease;
+    }
+
+    /* Blur the nav but allow pointer events on the beta button */
+    body:has(.welcome-overlay:not(.hidden)) .left-nav {
+      opacity: 0.4;
+      filter: blur(8px);
+      transition: opacity 0.2s ease, filter 0.2s ease;
+    }
+
+    /* Disable pointer events on nav items except beta */
+    body:has(.welcome-overlay:not(.hidden)) .left-nav .nav-item:not(.nav-item-beta) {
+      pointer-events: none;
+    }
+
+    /* Allow Beta Testers nav item to be clickable and stand out when welcome overlay is visible */
+    body:has(.welcome-overlay:not(.hidden)) .left-nav .nav-item-beta {
+      pointer-events: auto;
+      opacity: 2.5; /* Make it pop more (effectively full opacity due to parent's 0.4) */
+      filter: none;
+      position: relative;
     }
 
     .welcome-message {

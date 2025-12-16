@@ -65,6 +65,8 @@
         
         <div class="welcome-help-link">
           <a href="#" id="getHelpBtn">Get Help</a>
+          <span style="color: var(--text-secondary); margin: 0 8px;">•</span>
+          <a href="#" id="welcomeBetaBtn" style="color: var(--accent-gold); font-weight: 600;">★ Beta Testers</a>
         </div>
       </div>
     </div>
@@ -84,6 +86,9 @@
         <button class="nav-item" data-view="meetups" id="navMeetups">Actions</button>
         <button class="nav-item" data-view="tools" id="navTools">Tools</button>
         <button class="nav-item" data-view="help" id="navHelp">Help</button>
+        <button class="nav-item nav-item-beta" data-view="beta" id="navBetaTesters">
+          <span class="beta-star">★</span> Beta Testers
+        </button>
       </div>
       <div class="nav-section nav-section-bottom">
         <button class="nav-beta-feedback" onclick="openBetaFeedback()">
@@ -580,6 +585,69 @@
         </div>
       </div>
     </div>
+
+    <!-- Beta Testers View -->
+    <div class="content-view hidden" id="betaView">
+      <h2 class="page-title">🧪 Beta Testers Hub</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 32px; max-width: 700px;">
+        Thank you for helping shape the Zone Dashboard! Here are all the resources you need during the beta testing period. Don't be shy about requesting new features or pitching ambitious ideas! If there's something that would help you manage and understand your zone, please share it and we'll see what we can do!
+      </p>
+      
+      <div class="help-container">
+        <!-- Submit Feedback -->
+        <div class="help-card">
+          <h3>📝 Submit Feedback</h3>
+          <p>Found a bug? Have a feature request? Your feedback is invaluable in making this tool better for everyone.</p>
+          <div class="help-card-buttons">
+            <button class="help-link-btn" onclick="openBetaFeedback()">Open Feedback Form</button>
+          </div>
+        </div>
+
+        <!-- Community Feedback Airtable -->
+        <div class="help-card">
+          <h3>📋 Community Feedback</h3>
+          <p>See what other beta testers have submitted.</p>
+          <div style="border: 2px solid rgba(49, 64, 89, 0.2); border-radius: 8px; overflow: hidden; margin-top: 16px;">
+            <iframe 
+              class="airtable-embed" 
+              src="https://airtable.com/embed/appLrjspqPboCt2ma/shri1oExNiR0eaxLN" 
+              frameborder="0" 
+              width="100%" 
+              height="500" 
+              style="background: transparent;">
+            </iframe>
+          </div>
+        </div>
+
+        <!-- Shared Notes -->
+        <div class="help-card">
+          <h3>💬 Shared Notes from Beta Testers</h3>
+          <p>If you want to start a discussion or have thoughts that don't fit in the feedback system, feel free to think out loud in this shared notes doc.</p>
+          <div class="help-card-buttons">
+            <a href="https://docs.google.com/document/d/1viKks_KteIQw8rhQQgybYaZDVYhxtKqtJWQ8BFT8IEw/edit?tab=t.0" target="_blank" class="help-link-btn">Open Shared Notes</a>
+          </div>
+        </div>
+
+        <!-- Beta Tester Guide -->
+        <div class="help-card">
+          <h3>📖 Beta Tester Guide</h3>
+          <p>Please peruse before diving in too deep! Contains notes from me and a high-level overview of the site.</p>
+          <div class="help-card-buttons">
+            <a href="https://docs.google.com/document/d/1CbjQTMrvmiQprUr_t-7C10LRwLGUCDNSn3mjWXyKkfw/edit?usp=drive_link" target="_blank" class="help-link-btn">Open Beta Tester Guide</a>
+          </div>
+        </div>
+
+        <!-- Resource Links -->
+        <div class="help-card">
+          <h3>📁 Beta Resources</h3>
+          <p>Quick access to all beta testing resources.</p>
+          <div class="help-card-buttons">
+            <a href="https://drive.google.com/drive/folders/1savHKl1LRw5mvcQ7owwPzjGw-U2quG3_?usp=drive_link" target="_blank" class="help-link-btn">All Beta Resources Folder</a>
+            <a href="https://drive.google.com/drive/folders/1y0y8M5ol7SLBVqK1_Iq7nKHpwcf6dnHB?usp=drive_link" target="_blank" class="help-link-btn">Find Your Zone Spreadsheet</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -687,6 +755,16 @@
         e.preventDefault();
         // Open help page in new window
         window.open('help.html', '_blank', 'noopener,noreferrer');
+      });
+    }
+
+    // Beta Testers link handler in welcome overlay
+    const welcomeBetaBtn = document.getElementById('welcomeBetaBtn');
+    if (welcomeBetaBtn) {
+      welcomeBetaBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        // Switch to beta view and hide welcome overlay
+        switchView('beta');
       });
     }
 
@@ -981,7 +1059,7 @@
       const sheetLinkSection = document.querySelector('.sheet-link-section');
       
       if (!currentSheetUrl) {
-        // No spreadsheet linked - disable all navigation except Home
+        // No spreadsheet linked - disable all navigation except Home and Beta
         if (leftNav) {
           leftNav.classList.add('disabled');
         }
@@ -991,7 +1069,7 @@
         }
         navItems.forEach(item => {
           const viewName = item.getAttribute('data-view');
-          if (viewName !== 'home') {
+          if (viewName !== 'home' && viewName !== 'beta') {
             item.disabled = true;
             item.style.pointerEvents = 'none';
           } else {
@@ -4331,9 +4409,10 @@
     // Navigation System - Single Page Navigation
     function switchView(viewName) {
       // Prevent switching to non-home views if no spreadsheet is linked
+      // Exception: Beta view is always accessible
       // Check both currentSheetUrl and localStorage for savedSheetUrl
       const hasSheet = currentSheetUrl || localStorage.getItem('savedSheetUrl');
-      if (!hasSheet && viewName !== 'home') {
+      if (!hasSheet && viewName !== 'home' && viewName !== 'beta') {
         // Force back to home view
         viewName = 'home';
         currentView = 'home';
@@ -4521,9 +4600,10 @@
     // Set up navigation event listeners
     document.querySelectorAll('.nav-item[data-view]').forEach(item => {
       item.addEventListener('click', (e) => {
-        // Prevent navigation if no spreadsheet is linked (except Home)
-        const viewName = e.target.getAttribute('data-view');
-        if (!currentSheetUrl && viewName !== 'home') {
+        // Use currentTarget to get the button, not the clicked child element (like span)
+        const viewName = e.currentTarget.getAttribute('data-view');
+        // Prevent navigation if no spreadsheet is linked (except Home and Beta)
+        if (!currentSheetUrl && viewName !== 'home' && viewName !== 'beta') {
           e.preventDefault();
           e.stopPropagation();
           return false;
