@@ -1678,8 +1678,8 @@
         }
       });
       
-      // Always include default values (even if not in data yet)
-      const defaultStatusValues = ['Rebuilding', 'Selling', 'Renter/Moved', 'Staying'];
+      // Always include default values (even if not in data yet) in specific order
+      const defaultStatusValues = ['Rebuilding', 'For sale', 'Sold'];
       defaultStatusValues.forEach(val => {
         // Check if this value exists (case-insensitive)
         const existing = Array.from(statuses).find(s => s.toLowerCase() === val.toLowerCase());
@@ -1690,7 +1690,10 @@
         statuses.add(val);
       });
       
-      return Array.from(statuses).sort();
+      // Return in specific order: defaults first (in order), then any others alphabetically
+      const orderedStatuses = defaultStatusValues.filter(val => statuses.has(val));
+      const otherStatuses = Array.from(statuses).filter(val => !defaultStatusValues.includes(val)).sort();
+      return [...orderedStatuses, ...otherStatuses];
     }
 
     // Parse multiple captains from semicolon-separated values in NC Name, NC Phone, NC Email columns
@@ -2515,6 +2518,7 @@
         </select>
         <select id="persistentStatusFilter" class="${currentStatusFilter !== 'all' ? 'filter-active' : ''}">
           <option value="all" ${currentStatusFilter === 'all' ? 'selected' : ''}>All Property Status</option>
+          <option value="" ${currentStatusFilter === '' ? 'selected' : ''}>(not set)</option>
           ${statuses.map(status => `<option value="${status.replace(/"/g, '&quot;')}" ${currentStatusFilter === status ? 'selected' : ''}>${status}</option>`).join('')}
         </select>
         ${rebuildCol ? `<select id="persistentRebuildFilter" class="${currentRebuildFilter !== 'all' ? 'filter-active' : ''}">
@@ -2748,7 +2752,15 @@
             if (getAddressDamage(addr) !== currentDamageFilter) return false;
           }
         }
-        if (currentStatusFilter !== 'all' && getAddressStatus(addr) !== currentStatusFilter) return false;
+        if (currentStatusFilter !== 'all') {
+          const addrStatus = getAddressStatus(addr);
+          if (currentStatusFilter === '') {
+            // "(not set)" filter - only show addresses with no status
+            if (addrStatus !== null && addrStatus !== '') return false;
+          } else if (addrStatus !== currentStatusFilter) {
+            return false;
+          }
+        }
         if (currentRebuildFilter !== 'all' && rebuildCol) {
           const rows = sheetData.addressMap.get(addr);
           if (rows && rows[0]) {
@@ -2974,7 +2986,15 @@
             if (getAddressDamage(addr) !== currentDamageFilter) return false;
           }
         }
-        if (currentStatusFilter !== 'all' && getAddressStatus(addr) !== currentStatusFilter) return false;
+        if (currentStatusFilter !== 'all') {
+          const addrStatus = getAddressStatus(addr);
+          if (currentStatusFilter === '') {
+            // "(not set)" filter - only show addresses with no status
+            if (addrStatus !== null && addrStatus !== '') return false;
+          } else if (addrStatus !== currentStatusFilter) {
+            return false;
+          }
+        }
         if (currentRebuildFilter !== 'all' && rebuildCol) {
           const rows = sheetData.addressMap.get(addr);
           if (rows && rows[0]) {
@@ -3489,7 +3509,10 @@
         // Status filter
         if (currentStatusFilter !== 'all') {
           const addrStatus = getAddressStatus(addr);
-          if (addrStatus !== currentStatusFilter) {
+          if (currentStatusFilter === '') {
+            // "(not set)" filter - only show addresses with no status
+            if (addrStatus !== null && addrStatus !== '') return false;
+          } else if (addrStatus !== currentStatusFilter) {
             return false;
           }
         }
@@ -6589,7 +6612,12 @@
         // Status filter
         if (currentStatusFilter !== 'all') {
           const status = getAddressStatus(address);
-          if (status !== currentStatusFilter) return false;
+          if (currentStatusFilter === '') {
+            // "(not set)" filter - only show addresses with no status
+            if (status !== null && status !== '') return false;
+          } else if (status !== currentStatusFilter) {
+            return false;
+          }
         }
         
         // Rebuild filter
